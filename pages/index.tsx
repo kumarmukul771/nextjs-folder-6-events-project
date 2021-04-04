@@ -1,21 +1,26 @@
 import { getFeaturedEvents } from "../dummy-data";
 import EventList from "../components/events/event-list";
-import { useEffect, useState } from "react";
+import { EffectCallback, useEffect, useState } from "react";
+import { GetStaticProps } from "next";
 
 function HomePage(props) {
   const [featuredEvents, setFeaturedEvents] = useState(props.featuredEvents);
 
-  useEffect(async () => {
-    const response = await fetch(
-      "https://netjs-course-default-rtdb.firebaseio.com/events.json"
-    );
-    const data = await response.json();
-    let updatedEvents = [];
-    for (let key in data) {
-      updatedEvents.push({ ...data[key], id: key });
+  useEffect(() => {
+    async function fetchEvents() {
+      const response = await fetch(
+        "https://netjs-course-default-rtdb.firebaseio.com/events.json"
+      );
+      const data = await response.json();
+      let updatedEvents = [];
+      for (let key in data) {
+        updatedEvents.push({ ...data[key], id: key });
+      }
+
+      setFeaturedEvents(updatedEvents);
     }
 
-    setFeaturedEvents(updatedEvents);
+    fetchEvents();
   }, []);
 
   return (
@@ -25,7 +30,7 @@ function HomePage(props) {
   );
 }
 
-export async function getStaticProps(context) {
+export const getStaticProps: GetStaticProps = async (context) => {
   const response = await fetch(
     "https://netjs-course-default-rtdb.firebaseio.com/events.json"
   );
@@ -39,6 +44,6 @@ export async function getStaticProps(context) {
       featuredEvents: updatedEvents,
     },
   };
-}
+};
 
 export default HomePage;
